@@ -1,10 +1,10 @@
-package com.tatotech.pizzaria_backend;
+package com.tatotech.pizzeria;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PizzariaBackendApplicationTests {
+class PizzeriaApplicationTests {
 
 	@Test
 	void contextLoads() {
