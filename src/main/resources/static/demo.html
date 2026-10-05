@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cardápio</title>
+<!--
+  DEMO TEMPORAL — servida por Spring Boot en http://localhost:8080/demo.html
+  El front real vivirá en el repositorio pizzeria-frontend (React + Vite).
+  Borrar este archivo cuando el front real esté listo.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --oven: #1b1816;
+    --oven-line: #2e2925;
+    --sauce: #d7261e;
+    --sauce-deep: #a81a14;
+    --mozzarella: #f3ede4;
+    --flour: #9c948a;
+    --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-padding-top: calc(var(--safe-top) + 64px); }
+  body {
+    background: var(--black);
+    color: var(--mozzarella);
+    font: 400 16px/1.5 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 560px; margin: 0 auto; padding: var(--safe-top) 20px calc(120px + var(--safe-bottom)); }
+
+  /* ---------- Encabezado ---------- */
+  header { padding: 28px 0 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .brand {
+    font: 900 clamp(3rem, 15vw, 4.75rem)/0.86 var(--display);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--mozzarella);
+  }
+  .brand::after {
+    content: ""; display: block; width: 56px; height: 6px;
+    background: var(--sauce); margin-top: 14px;
+  }
+  .lang { display: flex; border: 1px solid var(--oven-line); border-radius: 999px; padding: 3px; flex-shrink: 0; }
+  .lang button {
+    background: none; border: 0; color: var(--flour); font: 600 13px var(--body);
+    padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { background: var(--mozzarella); color: var(--black); }
+
+  /* ---------- Pestañas de categorías ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--black);
+    padding: calc(var(--safe-top) + 10px) 0 10px;
+    margin: 0 -20px; padding-left: 20px; padding-right: 20px;
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    border-bottom: 1px solid var(--oven-line);
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    flex-shrink: 0; color: var(--flour); text-decoration: none;
+    font: 600 15px var(--body); padding: 8px 2px; margin-right: 14px;
+    border-bottom: 2px solid transparent;
+  }
+  nav a:hover, nav a:focus-visible { color: var(--mozzarella); border-bottom-color: var(--sauce); }
+
+  /* ---------- Menú ---------- */
+  section { padding-top: 36px; }
+  h2 {
+    font: 700 2rem/1 var(--display); text-transform: uppercase;
+    color: var(--sauce); margin-bottom: 8px;
+  }
+  .product { padding: 18px 0; border-bottom: 1px solid var(--oven-line); }
+  .product-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+  .product h3 { font: 600 1.125rem/1.3 var(--body); }
+  .from { font-size: 0.8rem; color: var(--flour); white-space: nowrap; }
+  .from strong { font: 700 1.25rem var(--display); color: var(--mozzarella); margin-left: 4px; letter-spacing: 0.01em; }
+  .desc { color: var(--flour); font-size: 0.925rem; margin-top: 4px; max-width: 46ch; }
+  .sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .size {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--oven); color: var(--mozzarella);
+    border: 1px solid var(--oven-line); border-radius: 10px;
+    padding: 9px 12px; font: 500 14px var(--body); cursor: pointer;
+  }
+  .size:hover { border-color: var(--sauce); }
+  .size .plus { color: var(--sauce); font-weight: 700; font-size: 17px; line-height: 1; }
+  .size:focus-visible, .lang button:focus-visible, .btn:focus-visible { outline: 2px solid var(--sauce); outline-offset: 2px; }
+  .product.sold-out h3, .product.sold-out .from strong { color: var(--flour); }
+  .product.sold-out .size { cursor: not-allowed; opacity: 0.45; }
+  .badge {
+    display: inline-block; margin-left: 8px; vertical-align: 2px;
+    font: 600 11px var(--body); color: var(--black); background: var(--flour);
+    padding: 2px 7px; border-radius: 4px;
+  }
+
+  .status { padding: 64px 0; color: var(--flour); text-align: center; }
+  .status strong { display: block; color: var(--mozzarella); font-size: 1.1rem; margin-bottom: 6px; }
+
+  /* ---------- Barra del carrito ---------- */
+  .cart-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 12px 20px calc(12px + var(--safe-bottom));
+    background: linear-gradient(transparent, var(--black) 30%);
+    display: none;
+  }
+  .cart-bar.visible { display: block; }
+  .btn {
+    width: 100%; max-width: 520px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
+    background: var(--sauce); color: var(--mozzarella); border: 0; border-radius: 14px;
+    padding: 16px 20px; font: 600 16px var(--body); cursor: pointer;
+  }
+  .btn:hover { background: var(--sauce-deep); }
+  .count { background: var(--mozzarella); color: var(--sauce); border-radius: 999px; min-width: 26px; height: 26px; display: inline-grid; place-items: center; font-size: 14px; margin-right: 10px; }
+
+  /* ---------- Hoja del carrito ---------- */
+  dialog {
+    margin: auto auto 0; width: 100%; max-width: 560px; max-height: 85vh;
+    background: var(--oven); color: var(--mozzarella); border: 0;
+    border-radius: 20px 20px 0 0; padding: 24px 20px calc(20px + var(--safe-bottom));
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+  dialog[open] { animation: rise 0.22s ease-out; }
+  @keyframes rise { from { transform: translateY(40px); opacity: 0; } }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .sheet-head h2 { color: var(--mozzarella); margin: 0; }
+  .close { background: none; border: 0; color: var(--flour); font: 500 15px var(--body); cursor: pointer; padding: 6px; }
+  .line { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--oven-line); }
+  .line small { color: var(--flour); display: block; }
+  .qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .qty button {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--oven-line);
+    background: var(--black); color: var(--mozzarella); font-size: 17px; cursor: pointer;
+  }
+  .total { display: flex; justify-content: space-between; padding: 18px 0; font-weight: 600; font-size: 1.1rem; }
+  .total strong { font: 700 1.6rem var(--display); }
+
+  @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1 class="brand" id="brand">&nbsp;</h1>
+    <div class="lang" role="group" aria-label="Idioma">
+      <button type="button" data-lang="pt-BR">PT</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+  </header>
+  <nav id="tabs" aria-label="Categorias"></nav>
+  <p class="status" id="status" role="status"></p>
+  <main id="menu"></main>
+</div>
+
+<div class="cart-bar" id="cartBar">
+  <button class="btn" type="button" id="openCart">
+    <span><span class="count" id="count">0</span><span id="seeOrder"></span></span>
+    <span id="barTotal"></span>
+  </button>
+</div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle">
+  <div class="sheet-head">
+    <h2 id="sheetTitle"></h2>
+    <button class="close" type="button" id="closeCart"></button>
+  </div>
+  <div id="lines"></div>
+  <div class="total"><span id="totalLabel"></span><strong id="sheetTotal"></strong></div>
+  <button class="btn" type="button" id="sendOrder"><span id="sendLabel"></span><span>↗</span></button>
+</dialog>
+
+<script>
+  // ---------- Textos de la interfaz (los del menú vienen traducidos desde la API) ----------
+  const UI = {
+    "pt-BR": {
+      from: "a partir de", soldOut: "Esgotado", seeOrder: "Ver pedido", yourOrder: "Seu pedido",
+      close: "Fechar", total: "Total", send: "Enviar pedido pelo WhatsApp", loading: "Carregando cardápio…",
+      errorTitle: "Não foi possível carregar o cardápio.", errorHint: "Verifique se o backend está rodando em localhost:8080.",
+      greeting: "Olá! Gostaria de fazer um pedido:", add: "Adicionar"
+    },
+    es: {
+      from: "desde", soldOut: "Agotado", seeOrder: "Ver pedido", yourOrder: "Tu pedido",
+      close: "Cerrar", total: "Total", send: "Enviar pedido por WhatsApp", loading: "Cargando menú…",
+      errorTitle: "No se pudo cargar el menú.", errorHint: "Verifica que el backend esté corriendo en localhost:8080.",
+      greeting: "¡Hola! Quisiera hacer un pedido:", add: "Agregar"
+    }
+  };
+
+  const slug = new URLSearchParams(location.search).get("r") || "pizzaria-teste";
+  const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  const $ = (id) => document.getElementById(id);
+
+  let lang = (navigator.language || "pt").toLowerCase().startsWith("es") ? "es" : "pt-BR";
+  let catalog = null;
+  let cart = loadCart();          // { variantId: cantidad }
+  const index = new Map();        // variantId → { product, variant }
+
+  function loadCart() {
+    try { return JSON.parse(sessionStorage.getItem("cart:" + slug)) || {}; } catch { return {}; }
+  }
+  function saveCart() {
+    try { sessionStorage.setItem("cart:" + slug, JSON.stringify(cart)); } catch { /* sin almacenamiento: el carrito vive solo en memoria */ }
+  }
+  function esc(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+  }
+
+  async function load() {
+    const t = UI[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+    const status = $("status");
+    status.hidden = false;
+    status.textContent = t.loading;
+    try {
+      const res = await fetch(`/api/v1/restaurants/${encodeURIComponent(slug)}/catalog?lang=${lang}`);
+      if (!res.ok) throw new Error(res.status);
+      catalog = await res.json();
+      status.hidden = true;
+      render();
+    } catch (e) {
+      $("tabs").innerHTML = "";
+      $("menu").innerHTML = "";
+      status.innerHTML = `<strong>${t.errorTitle}</strong>${t.errorHint}`;
+    }
+  }
+
+  function render() {
+    const t = UI[lang];
+    $("brand").textContent = catalog.restaurant.name;
+    document.title = catalog.restaurant.name;
+    index.clear();
+
+    $("tabs").innerHTML = catalog.categories
+      .map(c => `<a href="#cat-${c.id}">${esc(c.name)}</a>`).join("");
+
+    $("menu").innerHTML = catalog.categories.map(c => `
+      <section id="cat-${c.id}">
+        <h2>${esc(c.name)}</h2>
+        ${c.products.map(p => {
+          p.variants.forEach(v => index.set(String(v.id), { product: p, variant: v }));
+          const min = Math.min(...p.variants.map(v => v.price));
+          return `
+          <article class="product${p.available ? "" : " sold-out"}">
+            <div class="product-head">
+              <h3>${esc(p.name)}${p.available ? "" : `<span class="badge">${t.soldOut}</span>`}</h3>
+              <span class="from">${p.variants.length > 1 ? t.from : ""}<strong>${brl.format(min)}</strong></span>
+            </div>
+            ${p.description ? `<p class="desc">${esc(p.description)}</p>` : ""}
+            <div class="sizes">
+              ${p.variants.map(v => `
+                <button class="size" type="button" data-variant="${v.id}" ${p.available ? "" : "disabled"}
+                        aria-label="${t.add} ${esc(p.name)} ${esc(v.name)}">
+                  ${esc(v.name)}${p.variants.length > 1 ? " · " + brl.format(v.price) : ""}<span class="plus" aria-hidden="true">+</span>
+                </button>`).join("")}
+            </div>
+          </article>`;
+        }).join("")}
+      </section>`).join("");
+
+    // Quita del carrito variantes que ya no existen
+    Object.keys(cart).forEach(id => { if (!index.has(id)) delete cart[id]; });
+    renderCart();
+  }
+
+  function renderCart() {
+    const t = UI[lang];
+    const entries = Object.entries(cart).filter(([, q]) => q > 0);
+    const count = entries.reduce((s, [, q]) => s + q, 0);
+    const total = entries.reduce((s, [id, q]) => s + index.get(id).variant.price * q, 0);
+
+    $("cartBar").classList.toggle("visible", count > 0);
+    $("count").textContent = count;
+    $("seeOrder").textContent = t.seeOrder;
+    $("barTotal").textContent = brl.format(total);
+    $("sheetTitle").textContent = t.yourOrder;
+    $("closeCart").textContent = t.close;
+    $("totalLabel").textContent = t.total;
+    $("sheetTotal").textContent = brl.format(total);
+    $("sendLabel").textContent = t.send;
+
+    $("lines").innerHTML = entries.map(([id, q]) => {
+      const { product, variant } = index.get(id);
+      return `
+        <div class="line">
+          <div>${esc(product.name)}<small>${esc(variant.name)} · ${brl.format(variant.price * q)}</small></div>
+          <div class="qty">
+            <button type="button" data-dec="${id}" aria-label="−">−</button>
+            <span>${q}</span>
+            <button type="button" data-inc="${id}" aria-label="+">+</button>
+          </div>
+        </div>`;
+    }).join("");
+    if (count === 0 && $("sheet").open) $("sheet").close();
+    saveCart();
+  }
+
+  function whatsappLink() {
+    const t = UI[lang];
+    const entries = Object.entries(cart).filter(([, q]) => q > 0);
+    let total = 0;
+    const lines = entries.map(([id, q]) => {
+      const { product, variant } = index.get(id);
+      total += variant.price * q;
+      return `${q}x ${product.name} (${variant.name}) — ${brl.format(variant.price * q)}`;
+    });
+    const text = [t.greeting, "", ...lines, "", `${t.total}: ${brl.format(total)}`].join("\n");
+    return `https://wa.me/${catalog.restaurant.whatsappPhone}?text=${encodeURIComponent(text)}`;
+  }
+
+  // ---------- Eventos ----------
+  document.addEventListener("click", (e) => {
+    const size = e.target.closest("[data-variant]");
+    if (size) { const id = size.dataset.variant; cart[id] = (cart[id] || 0) + 1; renderCart(); return; }
+    const inc = e.target.closest("[data-inc]");
+    if (inc) { cart[inc.dataset.inc]++; renderCart(); return; }
+    const dec = e.target.closest("[data-dec]");
+    if (dec) { const id = dec.dataset.dec; cart[id]--; if (cart[id] <= 0) delete cart[id]; renderCart(); return; }
+    const langBtn = e.target.closest("[data-lang]");
+    if (langBtn && langBtn.dataset.lang !== lang) { lang = langBtn.dataset.lang; load(); }
+  });
+  $("openCart").addEventListener("click", () => $("sheet").showModal());
+  $("closeCart").addEventListener("click", () => $("sheet").close());
+  $("sendOrder").addEventListener("click", () => window.open(whatsappLink(), "_blank", "noopener"));
+
+  load();
+</script>
+</body>
+</html>
