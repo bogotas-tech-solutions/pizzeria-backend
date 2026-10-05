@@ -2,7 +2,7 @@
 
 API REST del menú digital por QR de **[NOMBRE DE LA PIZZERÍA]**. Expone el catálogo público (en portugués y español) y un panel de administración protegido para que el dueño gestione productos, precios y fotos.
 
-> Frontend: [pizzeria-frontend](https://github.com/tato-tech-solutions/pizzeria-frontend)
+> Frontend: [pizzeria-frontend](https://github.com/bogotas-tech-solutions/pizzeria-frontend)
 
 ## 🧭 Alcance del MVP
 
@@ -60,7 +60,7 @@ GET /api/v1/catalog?lang=es
 
 1. **Clonar el repositorio**
    ```bash
-   git clone https://github.com/tato-tech-solutions/pizzeria-backend.git
+   git clone https://github.com/bogotas-tech-solutions/pizzeria-backend.git
    cd pizzeria-backend
    ```
 
@@ -77,10 +77,12 @@ GET /api/v1/catalog?lang=es
 
 4. **Ejecutar la aplicación**
    ```bash
-   ./mvnw spring-boot:run        # macOS / Linux / Git Bash
-   mvnw.cmd spring-boot:run      # Windows (CMD / PowerShell)
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev      # macOS / Linux / Git Bash
+   .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"  # Windows (PowerShell)
    ```
-   Flyway aplica las migraciones automáticamente al arrancar.
+   Flyway aplica las migraciones automáticamente al arrancar. El perfil `dev` además carga datos de prueba (`db/seed-dev`).
+
+   Prueba el catálogo: `http://localhost:8080/api/v1/restaurants/pizzaria-teste/catalog?lang=es`
 
 5. **Verificar**
    ```
