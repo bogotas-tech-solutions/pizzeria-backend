@@ -1,13 +1,13 @@
-package com.tatotech.pizzaria_backend;
+package com.tatotech.pizzeria;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PizzariaBackendApplication {
+public class PizzariaApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PizzariaBackendApplication.class, args);
+		SpringApplication.run(PizzariaApplication.class, args);
 	}
 
 }
