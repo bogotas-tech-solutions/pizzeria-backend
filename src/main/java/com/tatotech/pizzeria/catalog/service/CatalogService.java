@@ -1,6 +1,7 @@
 package com.tatotech.pizzeria.catalog.service;
 
 import com.tatotech.pizzeria.catalog.model.Category;
+import com.tatotech.pizzeria.catalog.model.CategoryOption;
 import com.tatotech.pizzeria.catalog.model.NameTranslation;
 import com.tatotech.pizzeria.catalog.model.Product;
 import com.tatotech.pizzeria.catalog.model.ProductVariant;
@@ -8,6 +9,7 @@ import com.tatotech.pizzeria.catalog.repository.CategoryRepository;
 import com.tatotech.pizzeria.catalog.repository.ProductRepository;
 import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse;
 import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse.CategoryResponse;
+import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse.OptionResponse;
 import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse.ProductResponse;
 import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse.RestaurantResponse;
 import com.tatotech.pizzeria.catalog.web.dto.CatalogResponse.VariantResponse;
@@ -76,7 +78,18 @@ public class CatalogService {
                 .map(product -> toProductResponse(product, locale))
                 .flatMap(Optional::stream)
                 .toList();
-        return new CategoryResponse(category.getId(), nameOf(category.getTranslations(), locale), productResponses);
+        List<OptionResponse> options = category.getOptions().stream()
+                .filter(CategoryOption::isActive)
+                .map(option -> new OptionResponse(
+                        option.getId(),
+                        nameOf(option.getTranslations(), locale),
+                        option.getPrice()))
+                .toList();
+        return new CategoryResponse(
+                category.getId(),
+                nameOf(category.getTranslations(), locale),
+                options,
+                productResponses);
     }
 
     /** Vacío si el producto no tiene variantes activas o no tiene ninguna traducción. */
@@ -100,6 +113,7 @@ public class CatalogService {
                         translation.description(),
                         product.getImageUrl(),
                         product.isAvailable(),
+                        product.isFeatured(),
                         variants));
     }
 

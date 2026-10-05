@@ -8,12 +8,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,6 +45,11 @@ public class Category {
     @CollectionTable(name = "category_translation", joinColumns = @JoinColumn(name = "category_id"))
     private Set<NameTranslation> translations = new HashSet<>();
 
+    /** Opciones de personalización que aplican a todos los productos de la categoría. */
+    @OneToMany(mappedBy = "category")
+    @OrderBy("sortOrder ASC, id ASC")
+    private List<CategoryOption> options = new ArrayList<>();
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -57,4 +66,5 @@ public class Category {
     public int getSortOrder() { return sortOrder; }
     public boolean isActive() { return active; }
     public Set<NameTranslation> getTranslations() { return translations; }
+    public List<CategoryOption> getOptions() { return options; }
 }

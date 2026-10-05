@@ -49,6 +49,10 @@ public class Product {
     @Column(nullable = false)
     private boolean active;
 
+    /** true = especialidad de la casa, se muestra destacada. */
+    @Column(nullable = false)
+    private boolean featured;
+
     @ElementCollection
     @CollectionTable(name = "product_translation", joinColumns = @JoinColumn(name = "product_id"))
     private Set<ProductTranslation> translations = new HashSet<>();
@@ -74,6 +78,7 @@ public class Product {
     public int getSortOrder() { return sortOrder; }
     public boolean isAvailable() { return available; }
     public boolean isActive() { return active; }
+    public boolean isFeatured() { return featured; }
     public Set<ProductTranslation> getTranslations() { return translations; }
     public List<ProductVariant> getVariants() { return variants; }
 }

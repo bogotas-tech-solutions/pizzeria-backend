@@ -1,5 +1,8 @@
 -- =====================================================================
--- Datos de prueba SOLO para desarrollo (perfil dev).
+-- Datos SOLO para desarrollo (perfil dev). Contiene dos restaurantes:
+--   1. pizzaria-teste  → datos inventados con casos trampa (para pruebas)
+--   2. dejoma-pizzaria → menú real de Dejoma (precios PROVISIONALES)
+--
 -- Migración repetible (R__): Flyway la vuelve a ejecutar cada vez que
 -- este archivo cambia. Por eso empieza borrando todo: es idempotente.
 --
@@ -10,6 +13,10 @@
 -- =====================================================================
 
 TRUNCATE restaurant RESTART IDENTITY CASCADE;
+
+-- #####################################################################
+-- RESTAURANTE 1: pizzaria-teste (casos trampa para pruebas)
+-- #####################################################################
 
 -- ---------- Restaurante (id 1) ----------
 INSERT INTO restaurant (slug, name, whatsapp_phone)
@@ -101,3 +108,80 @@ JOIN (VALUES
         (8, 'pt-BR', 'Lata 350 ml'), (8, 'es', 'Lata 350 ml'),
         (9, 'pt-BR', 'Fatia'),       (9, 'es', 'Porción')
      ) AS t(product_id, locale, name) ON t.product_id = v.product_id;
+
+-- #####################################################################
+-- RESTAURANTE 2: dejoma-pizzaria — menú real
+-- ⚠️ PRECIOS, TAMAÑO Y WHATSAPP PROVISIONALES: pendientes de confirmar
+--    con el dueño. Traducciones al español pendientes de revisión.
+-- IDs esperados: restaurante 2, categorías 5-6, productos 10-15,
+--                variantes 22-27, opciones 1-2.
+-- #####################################################################
+
+INSERT INTO restaurant (slug, name, whatsapp_phone)
+VALUES ('dejoma-pizzaria', 'Dejoma Pizzaria', '5511999998888');
+
+INSERT INTO category (restaurant_id, sort_order) VALUES
+    (2, 1),   -- 5 Salgadas
+    (2, 2);   -- 6 Doces
+
+INSERT INTO category_translation (category_id, locale, name) VALUES
+    (5, 'pt-BR', 'Salgadas'), (5, 'es', 'Saladas'),
+    (6, 'pt-BR', 'Doces'),    (6, 'es', 'Dulces');
+
+-- Personalización de las saladas: cebolla y/u orégano, sin costo
+INSERT INTO category_option (category_id, price, sort_order) VALUES
+    (5, 0, 1),   -- 1 Cebola
+    (5, 0, 2);   -- 2 Orégano
+
+INSERT INTO category_option_translation (option_id, locale, name) VALUES
+    (1, 'pt-BR', 'Cebola'),  (1, 'es', 'Cebolla'),
+    (2, 'pt-BR', 'Orégano'), (2, 'es', 'Orégano');
+
+INSERT INTO product (category_id, sort_order, featured) VALUES
+    (5, 1, FALSE),   -- 10 Frango Cremoso à Dejoma
+    (5, 2, FALSE),   -- 11 Calabresa Especial
+    (5, 3, TRUE),    -- 12 Calabresa com Caldo de Cana (Exclusividade Dejoma)
+    (5, 4, FALSE),   -- 13 Margherita Especial
+    (6, 1, FALSE),   -- 14 Nutella com Morango
+    (6, 2, FALSE);   -- 15 Banana com Mel & Canela
+
+INSERT INTO product_translation (product_id, locale, name, description) VALUES
+    (10, 'pt-BR', 'Frango Cremoso à Dejoma',
+         'Molho artesanal de tomate, muçarela, frango desfiado e Catupiry, finalizada com o equilíbrio perfeito entre cremosidade e sabor.'),
+    (10, 'es',    'Frango Cremoso à Dejoma',
+         'Salsa artesanal de tomate, mozzarella, pollo desmechado y Catupiry, terminada con el equilibrio perfecto entre cremosidad y sabor.'),
+    (11, 'pt-BR', 'Calabresa Especial',
+         'Molho artesanal de tomate, muçarela, calabresa fatiada e cebola, em uma combinação clássica e irresistível.'),
+    (11, 'es',    'Calabresa Especial',
+         'Salsa artesanal de tomate, mozzarella, calabresa en rodajas y cebolla, en una combinación clásica e irresistible.'),
+    (12, 'pt-BR', 'Calabresa com Caldo de Cana',
+         'Molho artesanal de tomate, muçarela, calabresa fatiada, cebola roxa e um delicado toque de caldo de cana, criando um contraste especial entre o sabor marcante da calabresa e uma suave nota adocicada.'),
+    (12, 'es',    'Calabresa con Jugo de Caña',
+         'Salsa artesanal de tomate, mozzarella, calabresa en rodajas, cebolla morada y un delicado toque de jugo de caña, que crea un contraste especial entre el sabor intenso de la calabresa y una suave nota dulce.'),
+    (13, 'pt-BR', 'Margherita Especial',
+         'Molho artesanal de tomate, muçarela, tomates frescos e manjericão, em uma combinação leve, aromática e delicadamente equilibrada.'),
+    (13, 'es',    'Margarita Especial',
+         'Salsa artesanal de tomate, mozzarella, tomates frescos y albahaca, en una combinación ligera, aromática y delicadamente equilibrada.'),
+    (14, 'pt-BR', 'Nutella com Morango',
+         'Nutella cremosa e morangos frescos, em uma combinação delicada, cremosa e irresistível.'),
+    (14, 'es',    'Nutella con Fresas',
+         'Nutella cremosa y fresas frescas, en una combinación delicada, cremosa e irresistible.'),
+    (15, 'pt-BR', 'Banana com Mel & Canela',
+         'Muçarela, banana cuidadosamente selecionada, um delicado fio de mel e canela, trazendo o equilíbrio perfeito entre cremosidade, doçura e aroma.'),
+    (15, 'es',    'Banana con Miel y Canela',
+         'Mozzarella, banana cuidadosamente seleccionada, un delicado hilo de miel y canela, con el equilibrio perfecto entre cremosidad, dulzura y aroma.');
+
+-- Una sola variante por pizza hasta que el dueño confirme tamaños y precios
+INSERT INTO product_variant (product_id, price, sort_order) VALUES
+    (10, 49.90, 1),
+    (11, 47.90, 1),
+    (12, 54.90, 1),
+    (13, 47.90, 1),
+    (14, 52.90, 1),
+    (15, 46.90, 1);
+
+INSERT INTO product_variant_translation (variant_id, locale, name)
+SELECT v.id, t.locale, t.name
+FROM product_variant v
+CROSS JOIN (VALUES ('pt-BR', 'Tamanho único'), ('es', 'Tamaño único')) AS t(locale, name)
+WHERE v.product_id BETWEEN 10 AND 15;

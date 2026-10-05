@@ -15,7 +15,16 @@ public record CatalogResponse(
     public record RestaurantResponse(String name, String whatsappPhone) {
     }
 
-    public record CategoryResponse(Long id, String name, List<ProductResponse> products) {
+    public record CategoryResponse(
+            Long id,
+            String name,
+            List<OptionResponse> options,
+            List<ProductResponse> products
+    ) {
+    }
+
+    /** Opción de personalización (casilla). price = 0 → gratis. */
+    public record OptionResponse(Long id, String name, BigDecimal price) {
     }
 
     public record ProductResponse(
@@ -24,6 +33,7 @@ public record CatalogResponse(
             String description,
             String imageUrl,
             boolean available,
+            boolean featured,
             List<VariantResponse> variants
     ) {
     }
