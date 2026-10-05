@@ -1,3 +1,4 @@
+# ───────── Maven ─────────
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -10,8 +11,54 @@ buildNumber.properties
 # https://maven.apache.org/tools/wrapper/#Usage_with_or_without_Binary_JAR
 .mvn/wrapper/maven-wrapper.jar
 
-# Eclipse m2e generated files
-# Eclipse Core
+# ───────── Spring Boot ─────────
+HELP.md
+*.log
+logs/
+uploads/
+
+# ───────── Variables de entorno y secretos ─────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# ───────── IntelliJ IDEA ─────────
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ───────── VS Code ─────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# ───────── Eclipse / STS ─────────
 .project
-# JDT-specific (Eclipse Java Development Tools)
 .classpath
+.settings/
+.factorypath
+.apt_generated/
+.sts4-cache/
+bin/
+
+# ───────── NetBeans ─────────
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ───────── Sistema operativo ─────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ───────── Claude Code (configuración personal) ─────────
+.claude/settings.local.json
+CLAUDE.local.md
